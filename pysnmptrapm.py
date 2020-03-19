@@ -55,6 +55,7 @@ def main():
 
     s.close()
 
+
 def select_msg_for_test():
     testdata = []
     # command write(version 1)
@@ -74,13 +75,26 @@ def select_msg_for_test():
         print("1 ... {0}\n{1}".format("link-down(version 1)", testdata[1]))
         print("2 ... {0}\n{1}".format("link-up(version 1)", testdata[2]))
         print("3 ... {0}\n{1}".format("command write(version 2c)", testdata[3]))
-        print("select [0-3]")
+        print("select [0-3] : ", end = "")
         res = input()
         try:
             if int(res) < 4:
                 return testdata[int(res)]
         except:
             continue
+
+
+def get_flds(offset, msg):
+    offset_start = offset
+    offset, current_type = get_datatype(offset, msg[offset])
+    offset, current_length = get_length(offset, msg[offset:])
+    current_data = msg[offset : offset+current_length]
+    int_current_data = int.from_bytes(current_data, "big")
+    offset += current_length
+    len_flds = offset - offset_start
+    hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+
+    return offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata
 
 
 def print_trap_msg(msg):
@@ -91,11 +105,17 @@ def print_trap_msg(msg):
 
     """ header """
     offset_start = offset
-    offset, tag_head = get_datatype(offset, msg[offset])
-    offset, len_head = get_length(offset, msg[offset:])
-    header = msg[offset_start:offset_start+2]
+    offset, current_type = get_datatype(offset, msg[offset])
+    offset, current_length = get_length(offset, msg[offset:])
+    header = int.from_bytes(msg[offset_start : offset_start+2], "big")
     len_flds = offset - offset_start
-    print("{0:04x}: {1:<12x} {2:s} {3:18s} {4:x}(0x{4:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", tag_head + " size", len_head))
+
+    format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:x})"
+    print(format_str.format(offset_start, header, "", current_type, msg[offset_start]))
+
+    format_str = "{0:20s}  {1:18s} {2:d}(0x{2:x})\n"
+    print(format_str.format("", "size:", current_length))
+
 
     """ version """
     offset_start = offset
@@ -107,62 +127,57 @@ def print_trap_msg(msg):
 
     offset, version = get_version(offset, msg[offset:])
     len_flds = offset - offset_start
-    print("{0:04x}: {1:06x} {2:6s} {3:18s} {4:s}(0x{5:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "SNMP verision:", get_version_string(version), version))
+    hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+
+    format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:s}(0x{5:02x})"
+    print(format_str.format(offset_start, hexdata, "", "SNMP verision:", get_version_string(version), version))
 
     if version > 3:
         print("SNMP Version: unknown")
         return
 
     """ community """
-    offset_start = offset
-    offset, current_type= get_datatype(offset, msg[offset])
-    offset, current_length = get_length(offset, msg[offset:])
-    current_data = msg[offset:offset + current_length]
-    offset += current_length
-    len_flds = offset - offset_start
-    print("{0:04x}: {1:x}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big")))
-    print("{0:18s}  {1:s} {2:>15s}".format("", "community:", str(current_data, encoding="ascii")))
+    offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
+
+    format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}"
+    print(format_str.format(offset_start, hexdata, "", "community:", str(current_data, encoding="ascii")))
 
     """ data """
-    # a4 81 8e 06 08 2b
-
     offset_start = offset
     data_head = msg[offset]
     offset += 1
     offset, current_length = get_length(offset, msg[offset:])
     len_flds = offset - offset_start
-    print("{0:04x}: {1:x} {2:8s} {3:<18s}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "data"))
-    print("{0:18s}  {1:18s} {2:d}(0x{3:x})".format("", "size:", current_length, current_length))
+    hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+
+    format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:<18s}\n{4:20s}  {5:18s} {6:d}(0x{7:x})"
+    print(format_str.format(offset_start, hexdata, "", "data", "", "size:", current_length, current_length))
 
     if version == 0:
         # version 1
         """ enterprise """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        current_data = msg[offset : offset+current_length]
-        offset += current_length
-        len_flds = offset - offset_start
-        print("{0:04x}: {1:x}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big")))
-        print("{0:18s}  {1:18s} {2:s}".format("", "enterprise:", get_oid_string(current_data)))
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
+
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}"
+        print(format_str.format(offset_start, hexdata, "", "enterprise:", get_oid_string(current_data)))
 
         """ ipaddr """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        current_data = msg[offset : offset+current_length]
-        offset += current_length
-        len_flds = offset - offset_start
-        print("{0:04x}: {1:x}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big")))
-        print("{0:18s}  {1:18s} {2:s}".format("", "agent-addr:", get_ipaddr4_string(current_data)))
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}"
+        print(format_str.format(offset_start, hexdata, "", "agent-addr:", get_ipaddr4_string(current_data)))
+
+    
         """ generic-trap """
         offset_start = offset
         offset, current_type = get_datatype(offset, msg[offset])
         offset, current_length = get_length(offset, msg[offset:])
         int_current_data = int.from_bytes(msg[offset : offset+current_length], "big")
         len_flds = offset - offset_start + current_length
-        print("{0:04x}: {1:06x} {2:6s} {3:18s} {4:s}(0x{5:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "generic-trap:", get_generictrap_string(int_current_data), int_current_data))
+        hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:s}(0x{5:0" + str(2*current_length) + "x})"
+        print(format_str.format(offset_start, hexdata, "", "generic-trap:", get_generictrap_string(int_current_data), int_current_data))
         offset += current_length
 
         """ specific-trap """
@@ -172,7 +187,10 @@ def print_trap_msg(msg):
         int_current_data = int.from_bytes(msg[offset : offset+current_length], "big")
         offset += current_length
         len_flds = offset - offset_start
-        print("{0:04x}: {1:04x} {2:7s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "specific-trap:", int_current_data))
+        hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:0" + str(2*current_length) + "x})"
+        print(format_str.format(offset_start, hexdata, "", "specific-trap:", int_current_data))
 
         """ time-stamp """
         offset_start = offset
@@ -181,36 +199,30 @@ def print_trap_msg(msg):
         timeStamp = int.from_bytes(msg[offset : offset+current_length], "big")
         offset += current_length
         len_flds = offset - offset_start
-        print("{0:04x}: {1:06x} {2:s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "time-stamp:", timeStamp))
+        hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:0" + str(2*current_length) + "x})"
+        print(format_str.format(offset_start, hexdata, "", "time-stamp:", timeStamp))
 
     elif version == 1:
         # version 2c
         """ request-id """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        current_data = int.from_bytes(msg[offset : offset+current_length], "big")
-        offset += current_length
-        len_flds = offset - offset_start
-        print("{0:04x}: {1:04x} {2:5s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "request-id:", current_data))
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
+
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:x})"
+        print(format_str.format(offset_start, hexdata, "", "request-id:", int_current_data))
 
         """ error-status """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        current_data = int.from_bytes(msg[offset : offset+current_length], "big")
-        offset += current_length
-        len_flds = offset - offset_start
-        print("{0:04x}: {1:02x} {2:7s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "error-status:", current_data))
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
+
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:x})"
+        print(format_str.format(offset_start, hexdata, "", "error-status:", int_current_data))
 
         """ error-index """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        current_data = int.from_bytes(msg[offset : offset+current_length], "big")
-        offset += current_length
-        len_flds = offset - offset_start
-        print("{0:04x}: {1:02x} {2:7s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "error-index:", current_data))
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
+
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:x})"
+        print(format_str.format(offset_start, hexdata, "", "error-index:", int_current_data))
 
 
     """ variable-bindings """
@@ -218,9 +230,13 @@ def print_trap_msg(msg):
     offset, current_type = get_datatype(offset, msg[offset])
     offset, current_length = get_length(offset, msg[offset:])
     len_flds = offset - offset_start
-    print("{0:04x}: {1:04x} {2:8s} {3:7s}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "variable-bindings:"))
-    print("{0:38s} {1:s} {2:s}(0x{3:x})".format("", "type:", current_type, msg[offset_start]))
-    print("{0:38s} {1:s} {2:d}(0x{2:x})".format("", "size:", current_length))
+    hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+
+    format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s}"
+
+    print(format_str.format(offset_start, hexdata, "", "variable-bindings:"))
+    print("{0:40s} {1:s} {2:s}(0x{3:x})".format("", "type:", current_type, msg[offset_start]))
+    print("{0:40s} {1:s} {2:d}(0x{2:x})".format("", "size:", current_length))
 
     while offset < len(msg):
         """ obj """
@@ -228,34 +244,33 @@ def print_trap_msg(msg):
         offset, current_length = get_length(offset, msg[offset:])
 
         """ Name """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
-        obj = msg[offset : offset+current_length]
-        offset += current_length
-        len_flds = offset - offset_start
-        print("{0:04x}: {1:x}\n{2:19s} {3:18s} {4:s}".format(offset_start, int.from_bytes(msg[offset_start :  offset_start + len_flds], "big"), "", "Obj:", get_oid_string(obj)))
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:21s} {3:18s} {4:s}"
+        print(format_str.format(offset_start, hexdata, "", "Obj:", get_oid_string(current_data)))
 
         """ Val """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        val = msg[offset : offset+current_length]
-        offset += current_length
-        len_flds = offset - offset_start
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
         if current_type == "INTEGER" or current_type == "Gauge32":
-            print("{0:04x}: {1:0x}\n{2:19s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start + len_flds], "big"), "", current_type + ":", int.from_bytes(val, "big")))
+            format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:21s} {3:18s} {4:d}(0x{4:0" + str(2*current_length) + "x})"
+            print(format_str.format(offset_start, hexdata, "", current_type + ":", int_current_data))
 
         elif current_type == "OCTET STRING":
-            print("{0:04x}: {1:0x}\n{2:19s} {3:18s} {4:s}(0x{5:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start + len_flds], "big"), "", "OCTET STRING:", str(val, encoding="ascii"), int.from_bytes(val, "big")))
+            format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:21s} {3:18s} {4:s}(0x{5:0" + str(2*current_length) + "x})"
+            print(format_str.format(offset_start, hexdata, "", current_type + ":", str(current_data, encoding="ascii"), int_current_data))
 
         elif current_type == "TimeTicks":
-            print("{0:04x}: {1:06x} {2:s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "TimeTicks:", int.from_bytes(val, "big")))
+            format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:21s} {3:18s} {4:d}(0x{4:0" + str(2*current_length) + "x})"
+            print(format_str.format(offset_start, hexdata, "", current_type + ":", int_current_data))
+
+        elif current_type == "OBJECT IDENTIFIER":
+            format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:21s} {3:18s} {4:s}(0x{5:0" + str(2*current_length) + "x})"
+            print(format_str.format(offset_start, hexdata, "", current_type + ":", get_oid_string(current_data), int_current_data))
 
         else:
-            print("{0:04x}: {1:0x}\n{2:19s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start + len_flds], "big"), "", "val:", int.from_bytes(val, "big")))
+            format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:21s} {3:18s} {4:d}(0x{4:0" + str(2*current_length) + "x})"
+            print(format_str.format(offset_start, hexdata, "", "val:", int_current_data))
 
     return
 
@@ -325,10 +340,9 @@ def get_oid_string(targetStr):
         if i > 0:
             resultStr += "."
 
-        if targetStr[i] == 43:
+        if i == 0 and targetStr[i] == 43:
             resultStr += "iso"
             i += 1
-
         elif targetStr[i] >= 0x80:
             flds = []
             flds.append(targetStr[i] & 0x7f)        # remove MSB and append
