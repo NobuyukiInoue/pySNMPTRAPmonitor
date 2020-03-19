@@ -2,15 +2,18 @@
 
 Monitor and Dump SNMP TRAP by Python3
 
+
 ## Requirements
 
 Python 3.5 or later.
+
 
 ### Supported OS
 
 * MS-Windows
 * macOS
 * Linux
+
 
 ## How to execute pySNMPTRAPmonitor
 
@@ -423,5 +426,3 @@ End of SNMP trap reception.
 recvfrom() was timed out.  (60 second)
 PS D:\pySNMPTRAPmonitor>
 ```
-#   p y S N M P T R A P m o n i t o r  
- 
