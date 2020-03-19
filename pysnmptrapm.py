@@ -56,31 +56,31 @@ def main():
     s.close()
 
 def select_msg_for_test():
-    # command write
-    msg1 = b'0l\x02\x01\x00\x04\x07Mpublic\xa4^\x06\t+\x06\x01\x04\x01\t\t+\x02@\x04\n\x02\x0f\xfe\x02\x01\x06\x02\x01\x01C\x04\x00\xb3\xf2\xf70?0\x13\x06\x0e+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x03W\x02\x01\x010\x13\x06\x0e+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x04W\x02\x01\x030\x13\x06\x0e+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x05W\x02\x01\x04'
+    testdata = []
+    # command write(version 1)
+    testdata.append(b"0l\x02\x01\x00\x04\x07Mpublic\xa4^\x06\t+\x06\x01\x04\x01\t\t+\x02@\x04\n\x01\x01\xfe\x02\x01\x06\x02\x01\x01C\x04\x00\xb3\xf2\xf70?0\x13\x06\x0e+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x03W\x02\x01\x010\x13\x06\x0e+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x04W\x02\x01\x030\x13\x06\x0e+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x05W\x02\x01\x04")
 
-    # port linkdown(shutdown)
-    msg2 = b"0\x81\x9d\x02\x01\x00\x04\x07Mpublic\xa4\x81\x8e\x06\x08+\x06\x01\x06\x03\x01\x01\x05@\x04\n\x02\x0f\xfe\x02\x01\x02\x02\x01\x00C\x04\x01%\xbe\x160p0\x11\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x01\xcew\x02\x02'w0!\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x02\xcew\x04\x12GigabitEthernet0/30\x10\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x03\xcew\x02\x01\x060&\x06\r+\x06\x01\x04\x01\t\x02\x02\x01\x01\x14\xcew\x04\x15administratively down"
+    # port linkdown(version 1)
+    testdata.append(b"0\x81\x9d\x02\x01\x00\x04\x07Mpublic\xa4\x81\x8e\x06\x08+\x06\x01\x06\x03\x01\x01\x05@\x04\n\x01\x01\xfe\x02\x01\x02\x02\x01\x00C\x04\x01%\xbe\x160p0\x11\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x01\xcew\x02\x02'w0!\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x02\xcew\x04\x12GigabitEthernet0/30\x10\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x03\xcew\x02\x01\x060&\x06\r+\x06\x01\x04\x01\t\x02\x02\x01\x01\x14\xcew\x04\x15administratively down")
 
-    # port linkup(no shutdown)
-    msg3 = b"0\x81\x89\x02\x01\x00\x04\x07Mpublic\xa4{\x06\x08+\x06\x01\x06\x03\x01\x01\x05@\x04\n\x02\x0f\xfe\x02\x01\x03\x02\x01\x00C\x04\x01%\xd6\x930]0\x11\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x01\xcew\x02\x02'w0!\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x02\xcew\x04\x12GigabitEthernet0/30\x10\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x03\xcew\x02\x01\x060\x13\x06\r+\x06\x01\x04\x01\t\x02\x02\x01\x01\x14\xcew\x04\x02up"
+    # port linkup(version 1)
+    testdata.append(b"0\x81\x89\x02\x01\x00\x04\x07Mpublic\xa4{\x06\x08+\x06\x01\x06\x03\x01\x01\x05@\x04\n\x01\x01\xfe\x02\x01\x03\x02\x01\x00C\x04\x01%\xd6\x930]0\x11\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x01\xcew\x02\x02'w0!\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x02\xcew\x04\x12GigabitEthernet0/30\x10\x06\x0b+\x06\x01\x02\x01\x02\x02\x01\x03\xcew\x02\x01\x060\x13\x06\r+\x06\x01\x04\x01\t\x02\x02\x01\x01\x14\xcew\x04\x02up")
+
+    # command write(version 2c)
+    testdata.append(b'0\x81\x88\x02\x01\x01\x04\x06public\xa7{\x02\x02\x07\xf0\x02\x01\x00\x02\x01\x000o0\x10\x06\x08+\x06\x01\x02\x01\x01\x03\x00C\x04\x01\xa3_\xa60\x19\x06\n+\x06\x01\x06\x03\x01\x01\x04\x01\x00\x06\x0b+\x06\x01\x04\x01\t\t+\x02\x00\x010\x14\x06\x0f+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x03\x81\x13\x02\x01\x010\x14\x06\x0f+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x04\x81\x13\x02\x01\x030\x14\x06\x0f+\x06\x01\x04\x01\t\t+\x01\x01\x06\x01\x05\x81\x13\x02\x01\x04')
 
     while True:
-        print("1 ... {0}\n{1}".format("command write", msg1))
-        print("2 ... {0}\n{1}".format("link-down", msg2))
-        print("3 ... {0}\n{1}".format("link-up", msg3))
-        print("select [1-3]")
+        print("0 ... {0}\n{1}".format("command write(version 1)", testdata[0]))
+        print("1 ... {0}\n{1}".format("link-down(version 1)", testdata[1]))
+        print("2 ... {0}\n{1}".format("link-up(version 1)", testdata[2]))
+        print("3 ... {0}\n{1}".format("command write(version 2c)", testdata[3]))
+        print("select [0-3]")
         res = input()
-        if res == "1":
-            msg = msg1
-            break
-        elif res == "2":
-            msg = msg2
-            break
-        elif res == "3":
-            msg = msg3
-            break
-    return msg
+        try:
+            if int(res) < 4:
+                return testdata[int(res)]
+        except:
+            continue
 
 
 def print_trap_msg(msg):
@@ -95,7 +95,7 @@ def print_trap_msg(msg):
     offset, len_head = get_length(offset, msg[offset:])
     header = msg[offset_start:offset_start+2]
     len_flds = offset - offset_start
-    print("{0:04x}: {1:<13x} {2:<18s} {3:x}(0x{4:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), tag_head + " size", len_head, len_head))
+    print("{0:04x}: {1:<12x} {2:s} {3:18s} {4:x}(0x{4:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", tag_head + " size", len_head))
 
     """ version """
     offset_start = offset
@@ -107,7 +107,7 @@ def print_trap_msg(msg):
 
     offset, version = get_version(offset, msg[offset:])
     len_flds = offset - offset_start
-    print("{0:04x}: {1:<06x} {2:>21s} {3:s}(0x{4:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "SNMP verision:", get_version_string(version), version))
+    print("{0:04x}: {1:06x} {2:6s} {3:18s} {4:s}(0x{5:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "SNMP verision:", get_version_string(version), version))
 
     if version > 3:
         print("SNMP Version: unknown")
@@ -115,13 +115,13 @@ def print_trap_msg(msg):
 
     """ community """
     offset_start = offset
-    offset, type_str_community = get_datatype(offset, msg[offset])
-    offset, len_str_community = get_length(offset, msg[offset:])
-    str_community = msg[offset:offset + len_str_community]
-    offset += len_str_community
+    offset, current_type= get_datatype(offset, msg[offset])
+    offset, current_length = get_length(offset, msg[offset:])
+    current_data = msg[offset:offset + current_length]
+    offset += current_length
     len_flds = offset - offset_start
     print("{0:04x}: {1:x}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big")))
-    print("{0:18s}  {1:s} {2:>15s}".format("", "community:", str(str_community, encoding="ascii")))
+    print("{0:18s}  {1:s} {2:>15s}".format("", "community:", str(current_data, encoding="ascii")))
 
     """ data """
     # a4 81 8e 06 08 2b
@@ -129,99 +129,133 @@ def print_trap_msg(msg):
     offset_start = offset
     data_head = msg[offset]
     offset += 1
-    offset, len_trap_data = get_length(offset, msg[offset:])
+    offset, current_length = get_length(offset, msg[offset:])
     len_flds = offset - offset_start
-    print("{0:04x}: {1:x} {2:6s} {3:<18s}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "data"))
-    print("{0:18s}  {1:18s} {2:d}(0x{3:x})".format("", "size:", len_trap_data, len_trap_data))
+    print("{0:04x}: {1:x} {2:8s} {3:<18s}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "data"))
+    print("{0:18s}  {1:18s} {2:d}(0x{3:x})".format("", "size:", current_length, current_length))
 
     if version == 0:
         # version 1
         """ enterprise """
         offset_start = offset
-        offset, type_enterprise = get_datatype(offset, msg[offset])
-        offset, len_enterprise = get_length(offset, msg[offset:])
-        str_enterprise = msg[offset:offset+len_enterprise]
-        offset += len_enterprise
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        current_data = msg[offset : offset+current_length]
+        offset += current_length
         len_flds = offset - offset_start
         print("{0:04x}: {1:x}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big")))
-        print("{0:18s}  {1:18s} {2:s}".format("", "enterprise:", get_oid_string(str_enterprise)))
+        print("{0:18s}  {1:18s} {2:s}".format("", "enterprise:", get_oid_string(current_data)))
+
+        """ ipaddr """
+        offset_start = offset
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        current_data = msg[offset : offset+current_length]
+        offset += current_length
+        len_flds = offset - offset_start
+        print("{0:04x}: {1:x}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big")))
+        print("{0:18s}  {1:18s} {2:s}".format("", "agent-addr:", get_ipaddr4_string(current_data)))
+
+        """ generic-trap """
+        offset_start = offset
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        int_current_data = int.from_bytes(msg[offset : offset+current_length], "big")
+        len_flds = offset - offset_start + current_length
+        print("{0:04x}: {1:06x} {2:6s} {3:18s} {4:s}(0x{5:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "generic-trap:", get_generictrap_string(int_current_data), int_current_data))
+        offset += current_length
+
+        """ specific-trap """
+        offset_start = offset
+        offset, type_specific_trap = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        int_current_data = int.from_bytes(msg[offset : offset+current_length], "big")
+        offset += current_length
+        len_flds = offset - offset_start
+        print("{0:04x}: {1:04x} {2:7s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "specific-trap:", int_current_data))
+
+        """ time-stamp """
+        offset_start = offset
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        timeStamp = int.from_bytes(msg[offset : offset+current_length], "big")
+        offset += current_length
+        len_flds = offset - offset_start
+        print("{0:04x}: {1:06x} {2:s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "time-stamp:", timeStamp))
 
     elif version == 1:
-        #version 2c
-        print()
+        # version 2c
+        """ request-id """
+        offset_start = offset
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        current_data = int.from_bytes(msg[offset : offset+current_length], "big")
+        offset += current_length
+        len_flds = offset - offset_start
+        print("{0:04x}: {1:04x} {2:5s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "request-id:", current_data))
 
-    """ ipaddr """
-    offset_start = offset
-    offset, type_ipaddr = get_datatype(offset, msg[offset])
-    offset, len_ipaddr = get_length(offset, msg[offset:])
-    str_ipaddr = msg[offset:offset+len_ipaddr]
-    offset += len_ipaddr
-    len_flds = offset - offset_start
-    print("{0:04x}: {1:x}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big")))
-    print("{0:18s}  {1:18s} {2:s}".format("", "agent-addr:", get_ipaddr4_string(str_ipaddr)))
+        """ error-status """
+        offset_start = offset
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        current_data = int.from_bytes(msg[offset : offset+current_length], "big")
+        offset += current_length
+        len_flds = offset - offset_start
+        print("{0:04x}: {1:02x} {2:7s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "error-status:", current_data))
 
-    """ generic-trap """
-    offset_start = offset
-    offset, type_generic_trap = get_datatype(offset, msg[offset])
-    offset, len_type_generic_trap = get_length(offset, msg[offset:])
-    val_generic_trap = int.from_bytes(msg[offset:offset+len_type_generic_trap], "big")
-    len_flds = offset - offset_start + len_type_generic_trap
-    print("{0:04x}: {1:06x} {2:6s} {3:18s} {4:s}(0x{5:d})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "generic-trap:", get_generictrap_string(val_generic_trap), val_generic_trap))
-    offset += len_type_generic_trap
+        """ error-index """
+        offset_start = offset
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        current_data = int.from_bytes(msg[offset : offset+current_length], "big")
+        offset += current_length
+        len_flds = offset - offset_start
+        print("{0:04x}: {1:02x} {2:7s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "error-index:", current_data))
 
-    """ specific-trap """
-    offset_start = offset
-    offset, type_specific_trap = get_datatype(offset, msg[offset])
-    offset, len_specific_trap = get_length(offset, msg[offset:])
-    val_specific_trap = int.from_bytes(msg[offset:offset+len_specific_trap], "big")
-    offset += len_specific_trap
-    len_flds = offset - offset_start
-    print("{0:04x}: {1:04x} {2:7s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "specific-trap:", val_specific_trap))
-
-    """ time-stamp """
-    offset_start = offset
-    offset, type_timestamp = get_datatype(offset, msg[offset])
-    offset, len_timestamp = get_length(offset, msg[offset:])
-    timeStamp = int.from_bytes(msg[offset:offset+len_timestamp], "big")
-    offset += len_timestamp
-    len_flds = offset - offset_start
-    print("{0:04x}: {1:06x} {2:s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "time-stamp:", timeStamp))
 
     """ variable-bindings """
     offset_start = offset
-    offset, type_variable_binding = get_datatype(offset, msg[offset])
-    offset, len_variable_binding = get_length(offset, msg[offset:])
+    offset, current_type = get_datatype(offset, msg[offset])
+    offset, current_length = get_length(offset, msg[offset:])
     len_flds = offset - offset_start
-    print("{0:04x}: {1:04x} {2:8s} {3:7s} type = {4:s}(0x{5:x}), size = {6:d}(0x{6:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "variable-bindings:", type_variable_binding, msg[offset_start], len_variable_binding))
+    print("{0:04x}: {1:04x} {2:8s} {3:7s}".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "variable-bindings:"))
+    print("{0:38s} {1:s} {2:s}(0x{3:x})".format("", "type:", current_type, msg[offset_start]))
+    print("{0:38s} {1:s} {2:d}(0x{2:x})".format("", "size:", current_length))
 
     while offset < len(msg):
         """ obj """
-        offset, type_obj = get_datatype(offset, msg[offset])
-        offset, len_obj = get_length(offset, msg[offset:])
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
 
         """ Name """
         offset_start = offset
-        offset, type_name = get_datatype(offset, msg[offset])
-        offset, len_name = get_length(offset, msg[offset:])
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
 
-        obj = msg[offset:offset+len_name]
-        offset += len_name
+        obj = msg[offset : offset+current_length]
+        offset += current_length
         len_flds = offset - offset_start
         print("{0:04x}: {1:x}\n{2:19s} {3:18s} {4:s}".format(offset_start, int.from_bytes(msg[offset_start :  offset_start + len_flds], "big"), "", "Obj:", get_oid_string(obj)))
 
         """ Val """
         offset_start = offset
-        offset, type_val = get_datatype(offset, msg[offset])
-        offset, len_val = get_length(offset, msg[offset:])
-        val = msg[offset:offset+len_val]
-        offset += len_val
+        offset, current_type = get_datatype(offset, msg[offset])
+        offset, current_length = get_length(offset, msg[offset:])
+        val = msg[offset : offset+current_length]
+        offset += current_length
         len_flds = offset - offset_start
-        if type_val == "INTEGER":
-            print("{0:04x}: {1:x}\n{2:19s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start :  offset_start + len_flds], "big"), "", "val:", int.from_bytes(val, "big")))
-        elif type_val == "OCTET STRING":
-            print("{0:04x}: {1:x}\n{2:19s} {3:18s} {4:s}(0x{5:x})".format(offset_start, int.from_bytes(msg[offset_start :  offset_start + len_flds], "big"), "", "val:", str(val, encoding="ascii"), int.from_bytes(val, "big")))
+
+        if current_type == "INTEGER" or current_type == "Gauge32":
+            print("{0:04x}: {1:0x}\n{2:19s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start + len_flds], "big"), "", current_type + ":", int.from_bytes(val, "big")))
+
+        elif current_type == "OCTET STRING":
+            print("{0:04x}: {1:0x}\n{2:19s} {3:18s} {4:s}(0x{5:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start + len_flds], "big"), "", "OCTET STRING:", str(val, encoding="ascii"), int.from_bytes(val, "big")))
+
+        elif current_type == "TimeTicks":
+            print("{0:04x}: {1:06x} {2:s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start+len_flds], "big"), "", "TimeTicks:", int.from_bytes(val, "big")))
+
         else:
-            print("{0:04x}: {1:x}\n{2:19s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start :  offset_start + len_flds], "big"), "", "val:", int.from_bytes(val, "big")))
+            print("{0:04x}: {1:0x}\n{2:19s} {3:18s} {4:d}(0x{4:x})".format(offset_start, int.from_bytes(msg[offset_start : offset_start + len_flds], "big"), "", "val:", int.from_bytes(val, "big")))
 
     return
 

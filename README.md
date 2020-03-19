@@ -7,12 +7,20 @@ Monitor and Dump SNMP TRAP by Python3
 
 Python 3.5 or later.
 
+This program uses UDP port 162.
+
 
 ### Supported OS
 
 * MS-Windows
 * macOS
 * Linux
+
+
+### Supported SNMP version
+
+* SNMP version 1
+* SNMP version 2c
 
 
 ## How to execute pySNMPTRAPmonitor
