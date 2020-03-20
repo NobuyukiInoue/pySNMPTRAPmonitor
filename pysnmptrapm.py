@@ -78,7 +78,7 @@ def select_msg_for_test():
         print("select [0-3] : ", end = "")
         res = input()
         try:
-            if int(res) < 4:
+            if 0 <= int(res) < 4:
                 return testdata[int(res)]
         except:
             continue
@@ -181,13 +181,7 @@ def print_trap_msg(msg):
         offset += current_length
 
         """ specific-trap """
-        offset_start = offset
-        offset, type_specific_trap = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        int_current_data = int.from_bytes(msg[offset : offset+current_length], "big")
-        offset += current_length
-        len_flds = offset - offset_start
-        hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
         format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:0" + str(2*current_length) + "x})"
         print(format_str.format(offset_start, hexdata, "", "specific-trap:", int_current_data))
@@ -310,8 +304,7 @@ def get_length(offset, msg):
     if msg[0] <= 127:
         return offset + 1, msg[0]
     else:
-        length = msg[0] & 0x7f
-        return offset + 2, length
+        return offset + 2, msg[0] & 0x7f
 
 
 def get_version(offset, msg):
