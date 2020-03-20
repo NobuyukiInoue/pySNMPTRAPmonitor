@@ -113,7 +113,7 @@ def print_trap_msg(msg):
     format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:x})"
     print(format_str.format(offset_start, header, "", current_type, msg[offset_start]))
 
-    format_str = "{0:20s}  {1:18s} {2:d}(0x{2:x})\n"
+    format_str = "{0:20s}  {1:18s} {2:d}(0x{2:02x})\n"
     print(format_str.format("", "size:", current_length))
 
 
@@ -139,8 +139,8 @@ def print_trap_msg(msg):
     """ community """
     offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
-    format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}"
-    print(format_str.format(offset_start, hexdata, "", "community:", str(current_data, encoding="ascii")))
+    format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}(0x{5:0" + str(2*current_length) + "x})"
+    print(format_str.format(offset_start, hexdata, "", "community:", str(current_data, encoding="ascii"), int_current_data))
 
     """ data """
     offset_start = offset
@@ -158,27 +158,20 @@ def print_trap_msg(msg):
         """ enterprise """
         offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
-        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}"
-        print(format_str.format(offset_start, hexdata, "", "enterprise:", get_oid_string(current_data)))
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}\n{5:40s} (0x{6:0" + str(2*current_length) + "x})"
+        print(format_str.format(offset_start, hexdata, "", "enterprise:", get_oid_string(current_data), "", int_current_data))
 
         """ ipaddr """
         offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
-        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}"
-        print(format_str.format(offset_start, hexdata, "", "agent-addr:", get_ipaddr4_string(current_data)))
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:20s}  {3:18s} {4:s}(0x{5:0" + str(2*current_length) + "x})"
+        print(format_str.format(offset_start, hexdata, "", "agent-addr:", get_ipaddr4_string(current_data), int_current_data))
 
-    
         """ generic-trap """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        int_current_data = int.from_bytes(msg[offset : offset+current_length], "big")
-        len_flds = offset - offset_start + current_length
-        hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
         format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:s}(0x{5:0" + str(2*current_length) + "x})"
         print(format_str.format(offset_start, hexdata, "", "generic-trap:", get_generictrap_string(int_current_data), int_current_data))
-        offset += current_length
 
         """ specific-trap """
         offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
@@ -187,16 +180,10 @@ def print_trap_msg(msg):
         print(format_str.format(offset_start, hexdata, "", "specific-trap:", int_current_data))
 
         """ time-stamp """
-        offset_start = offset
-        offset, current_type = get_datatype(offset, msg[offset])
-        offset, current_length = get_length(offset, msg[offset:])
-        timeStamp = int.from_bytes(msg[offset : offset+current_length], "big")
-        offset += current_length
-        len_flds = offset - offset_start
-        hexdata = int.from_bytes(msg[offset_start : offset_start+len_flds], "big")
+        offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
         format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x} {2:" + str(14 - 2*len_flds) + "s} {3:18s} {4:d}(0x{4:0" + str(2*current_length) + "x})"
-        print(format_str.format(offset_start, hexdata, "", "time-stamp:", timeStamp))
+        print(format_str.format(offset_start, hexdata, "", "time-stamp:", int_current_data))
 
     elif version == 1:
         # version 2c
@@ -240,8 +227,8 @@ def print_trap_msg(msg):
         """ Name """
         offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
 
-        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:21s} {3:18s} {4:s}"
-        print(format_str.format(offset_start, hexdata, "", "Obj:", get_oid_string(current_data)))
+        format_str = "{0:04x}: {1:0" + str(2*len_flds) + "x}\n{2:21s} {3:18s} {4:s}\n{5:40s} (0x{6:0" + str(2*current_length) + "x})"
+        print(format_str.format(offset_start, hexdata, "", "Obj:", get_oid_string(current_data), "", int_current_data))
 
         """ Val """
         offset_start, offset, current_type, current_length, current_data, int_current_data, len_flds, hexdata = get_flds(offset, msg)
